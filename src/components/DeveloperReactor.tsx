@@ -190,17 +190,32 @@ const OrbitingLogo = ({
             />
           </div>
           
-          {/* Tooltip */}
+          {/* Glassmorphism Tooltip */}
           {hovered && (
             <div
-              className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap pointer-events-none"
-              style={{
-                backgroundColor: `${tech.color}`,
-                color: tech.color === '#F7DF1E' || tech.color === '#FFCA28' ? '#000' : '#fff',
-                boxShadow: `0 0 20px ${tech.color}`,
-              }}
+              className="absolute -top-14 left-1/2 -translate-x-1/2 pointer-events-none animate-in fade-in-0 zoom-in-95 duration-200"
             >
-              {tech.name}
+              <div
+                className="relative px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap backdrop-blur-md"
+                style={{
+                  background: 'rgba(0, 0, 0, 0.8)',
+                  backdropFilter: 'blur(10px)',
+                  border: `1px solid ${tech.color}80`,
+                  boxShadow: `0 4px 12px ${tech.color}50, 0 0 20px ${tech.color}30`,
+                  color: '#ffffff',
+                }}
+              >
+                {tech.name}
+                {/* Arrow pointer */}
+                <div
+                  className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45"
+                  style={{
+                    background: 'rgba(0, 0, 0, 0.8)',
+                    borderRight: `1px solid ${tech.color}80`,
+                    borderBottom: `1px solid ${tech.color}80`,
+                  }}
+                />
+              </div>
             </div>
           )}
         </div>
