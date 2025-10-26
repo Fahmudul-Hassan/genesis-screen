@@ -122,7 +122,12 @@ const OrbitingLogo = ({
         onHover(null);
       }}
     >
-      <Html center distanceFactor={8}>
+      <Html 
+        center 
+        distanceFactor={8}
+        zIndexRange={[100, 0]}
+        portal={{ current: typeof document !== 'undefined' ? document.body : undefined }}
+      >
         <div
           className="relative flex items-center justify-center transition-all duration-500"
           style={{
@@ -193,7 +198,7 @@ const OrbitingLogo = ({
           {/* Glassmorphism Tooltip */}
           {hovered && (
             <div
-              className="absolute -top-14 left-1/2 -translate-x-1/2 pointer-events-none animate-in fade-in-0 zoom-in-95 duration-200"
+              className="absolute -top-14 left-1/2 -translate-x-1/2 animate-in fade-in-0 zoom-in-95 duration-200 z-[9999]"
             >
               <div
                 className="relative px-3 py-1.5 rounded-lg text-sm font-medium whitespace-nowrap backdrop-blur-md"
