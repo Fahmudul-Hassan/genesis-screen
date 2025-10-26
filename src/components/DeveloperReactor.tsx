@@ -1,22 +1,71 @@
 import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Sphere, MeshDistortMaterial, Line } from "@react-three/drei";
+import { Sphere, MeshDistortMaterial, Line, Html } from "@react-three/drei";
 import { useRef, useState } from "react";
 import * as THREE from "three";
+import { Code2, Database, Server, FileCode, Boxes, GitBranch, Container, Cloud, Figma, Palette, Layers, Lock, CreditCard } from "lucide-react";
+
+const techIcons: Record<string, any> = {
+  "React": Code2,
+  "Next.js": Code2,
+  "TypeScript": FileCode,
+  "Tailwind": Palette,
+  "JavaScript": Code2,
+  "Redux": Layers,
+  "Shadcn UI": Boxes,
+  "MUI": Boxes,
+  "Node.js": Server,
+  "Express": Server,
+  "PostgreSQL": Database,
+  "MongoDB": Database,
+  "Prisma": Database,
+  "Python": FileCode,
+  "Git": GitBranch,
+  "Docker": Container,
+  "Vercel": Cloud,
+  "Firebase": Cloud,
+  "NextAuth": Lock,
+  "Stripe": CreditCard,
+  "Figma": Figma,
+};
 
 const skillLayers = {
   Frontend: {
-    skills: ["React", "Next.js", "TypeScript", "Tailwind"],
+    skills: [
+      { name: "React", size: 1.2 },
+      { name: "Next.js", size: 1.2 },
+      { name: "TypeScript", size: 1.1 },
+      { name: "Tailwind", size: 1.0 },
+      { name: "JavaScript", size: 1.1 },
+      { name: "Redux", size: 0.9 },
+      { name: "Shadcn UI", size: 0.8 },
+      { name: "MUI", size: 0.8 },
+    ],
     color: "#06b6d4",
     radius: 3,
   },
   Backend: {
-    skills: ["Node.js", "Express", "PostgreSQL", "Prisma"],
+    skills: [
+      { name: "Node.js", size: 1.1 },
+      { name: "Express", size: 0.9 },
+      { name: "PostgreSQL", size: 1.0 },
+      { name: "MongoDB", size: 1.0 },
+      { name: "Prisma", size: 0.9 },
+      { name: "Python", size: 1.0 },
+    ],
     color: "#ec4899",
     radius: 4.5,
   },
   Tools: {
-    skills: ["Git", "Docker", "Vercel", "Firebase"],
+    skills: [
+      { name: "Git", size: 1.0 },
+      { name: "Docker", size: 1.0 },
+      { name: "Vercel", size: 0.9 },
+      { name: "Firebase", size: 0.9 },
+      { name: "NextAuth", size: 0.8 },
+      { name: "Stripe", size: 0.8 },
+      { name: "Figma", size: 0.8 },
+    ],
     color: "#8b5cf6",
     radius: 6,
   },
@@ -55,30 +104,37 @@ const OrbitingSkill = ({
   angle,
   radius,
   color,
+  size,
   onHover,
 }: {
   skill: string;
   angle: number;
   radius: number;
   color: string;
+  size: number;
   onHover: (skill: string | null) => void;
 }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
+  const IconComponent = techIcons[skill] || Code2;
 
   useFrame(({ clock }) => {
-    if (meshRef.current) {
+    if (groupRef.current) {
       const t = clock.getElapsedTime() * 0.3;
-      meshRef.current.position.x = Math.cos(t + angle) * radius;
-      meshRef.current.position.z = Math.sin(t + angle) * radius;
-      meshRef.current.position.y = Math.sin(t * 2) * 0.3;
-      meshRef.current.rotation.y += 0.02;
+      groupRef.current.position.x = Math.cos(t + angle) * radius;
+      groupRef.current.position.z = Math.sin(t + angle) * radius;
+      // Bobbing animation
+      groupRef.current.position.y = Math.sin(t * 2 + angle) * 0.4;
+      // Tilt and rotate
+      groupRef.current.rotation.y = t + angle;
+      groupRef.current.rotation.x = Math.sin(t) * 0.2;
+      groupRef.current.rotation.z = Math.cos(t * 0.5) * 0.1;
     }
   });
 
   return (
-    <mesh
-      ref={meshRef}
+    <group
+      ref={groupRef}
       onPointerOver={() => {
         setHovered(true);
         onHover(skill);
@@ -88,15 +144,43 @@ const OrbitingSkill = ({
         onHover(null);
       }}
     >
-      <boxGeometry args={hovered ? [0.35, 0.35, 0.35] : [0.25, 0.25, 0.25]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={hovered ? 2 : 0.8}
-        metalness={0.8}
-        roughness={0.2}
-      />
-    </mesh>
+      <Html center distanceFactor={8}>
+        <div
+          className="relative flex items-center justify-center transition-all duration-300"
+          style={{
+            width: hovered ? `${size * 70}px` : `${size * 50}px`,
+            height: hovered ? `${size * 70}px` : `${size * 50}px`,
+          }}
+        >
+          {/* Glow background */}
+          <div
+            className="absolute inset-0 rounded-xl blur-xl transition-all duration-300"
+            style={{
+              backgroundColor: color,
+              opacity: hovered ? 0.8 : 0.4,
+              transform: hovered ? 'scale(1.3)' : 'scale(1)',
+            }}
+          />
+          {/* Icon container */}
+          <div
+            className="relative flex items-center justify-center rounded-xl transition-all duration-300 backdrop-blur-sm"
+            style={{
+              backgroundColor: `${color}20`,
+              border: `2px solid ${color}`,
+              width: '100%',
+              height: '100%',
+              transform: hovered ? 'scale(1.1)' : 'scale(1)',
+            }}
+          >
+            <IconComponent
+              size={size * (hovered ? 32 : 24)}
+              style={{ color }}
+              strokeWidth={2.5}
+            />
+          </div>
+        </div>
+      </Html>
+    </group>
   );
 };
 
@@ -129,15 +213,16 @@ const ReactorScene = ({ hoveredSkill, setHoveredSkill }: { hoveredSkill: string 
 
       {/* Skill Layers */}
       {Object.entries(skillLayers).map(([layer, { skills, color, radius }]) =>
-        skills.map((skill, index) => {
+        skills.map((skillObj, index) => {
           const angle = (index / skills.length) * Math.PI * 2;
           return (
-            <group key={`${layer}-${skill}`}>
+            <group key={`${layer}-${skillObj.name}`}>
               <OrbitingSkill
-                skill={skill}
+                skill={skillObj.name}
                 angle={angle}
                 radius={radius}
                 color={color}
+                size={skillObj.size}
                 onHover={setHoveredSkill}
               />
               {/* Energy Stream from Core to Skill */}
