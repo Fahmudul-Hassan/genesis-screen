@@ -1,74 +1,57 @@
 import { motion } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Sphere, MeshDistortMaterial, Line, Html } from "@react-three/drei";
+import { Sphere, MeshDistortMaterial, Html } from "@react-three/drei";
 import { useRef, useState } from "react";
 import * as THREE from "three";
-import { Code2, Database, Server, FileCode, Boxes, GitBranch, Container, Cloud, Figma, Palette, Layers, Lock, CreditCard } from "lucide-react";
 
-const techIcons: Record<string, any> = {
-  "React": Code2,
-  "Next.js": Code2,
-  "TypeScript": FileCode,
-  "Tailwind": Palette,
-  "JavaScript": Code2,
-  "Redux": Layers,
-  "Shadcn UI": Boxes,
-  "MUI": Boxes,
-  "Node.js": Server,
-  "Express": Server,
-  "PostgreSQL": Database,
-  "MongoDB": Database,
-  "Prisma": Database,
-  "Python": FileCode,
-  "Git": GitBranch,
-  "Docker": Container,
-  "Vercel": Cloud,
-  "Firebase": Cloud,
-  "NextAuth": Lock,
-  "Stripe": CreditCard,
-  "Figma": Figma,
+const techStack = [
+  // Inner orbit - Primary stack (large)
+  { name: 'React', color: '#61DAFB', orbit: 'inner', size: 'large', icon: 'react' },
+  { name: 'Next.js', color: '#000000', orbit: 'inner', size: 'large', icon: 'nextdotjs' },
+  { name: 'TypeScript', color: '#3178C6', orbit: 'inner', size: 'large', icon: 'typescript' },
+  { name: 'Node.js', color: '#339933', orbit: 'inner', size: 'large', icon: 'nodedotjs' },
+  { name: 'PostgreSQL', color: '#4169E1', orbit: 'inner', size: 'large', icon: 'postgresql' },
+  { name: 'MongoDB', color: '#47A248', orbit: 'inner', size: 'medium', icon: 'mongodb' },
+  
+  // Middle orbit - Secondary stack (medium)
+  { name: 'Tailwind CSS', color: '#06B6D4', orbit: 'middle', size: 'medium', icon: 'tailwindcss' },
+  { name: 'Redux', color: '#764ABC', orbit: 'middle', size: 'medium', icon: 'redux' },
+  { name: 'Express.js', color: '#000000', orbit: 'middle', size: 'medium', icon: 'express' },
+  { name: 'Prisma', color: '#2D3748', orbit: 'middle', size: 'medium', icon: 'prisma' },
+  { name: 'Git', color: '#F05032', orbit: 'middle', size: 'medium', icon: 'git' },
+  { name: 'Vercel', color: '#000000', orbit: 'middle', size: 'medium', icon: 'vercel' },
+  { name: 'Shadcn UI', color: '#000000', orbit: 'middle', size: 'medium', icon: 'shadcnui' },
+  
+  // Outer orbit - Additional technologies (small)
+  { name: 'HTML5', color: '#E34F26', orbit: 'outer', size: 'small', icon: 'html5' },
+  { name: 'CSS3', color: '#1572B6', orbit: 'outer', size: 'small', icon: 'css3' },
+  { name: 'JavaScript', color: '#F7DF1E', orbit: 'outer', size: 'small', icon: 'javascript' },
+  { name: 'Python', color: '#3776AB', orbit: 'outer', size: 'small', icon: 'python' },
+  { name: 'C++', color: '#00599C', orbit: 'outer', size: 'small', icon: 'cplusplus' },
+  { name: 'C', color: '#A8B9CC', orbit: 'outer', size: 'small', icon: 'c' },
+  { name: 'Java', color: '#007396', orbit: 'outer', size: 'small', icon: 'openjdk' },
+  { name: 'Firebase', color: '#FFCA28', orbit: 'outer', size: 'small', icon: 'firebase' },
+  { name: 'Stripe', color: '#635BFF', orbit: 'outer', size: 'small', icon: 'stripe' },
+  { name: 'Figma', color: '#F24E1E', orbit: 'outer', size: 'small', icon: 'figma' },
+  { name: 'GitHub', color: '#181717', orbit: 'outer', size: 'small', icon: 'github' },
+  { name: 'MUI', color: '#007FFF', orbit: 'outer', size: 'small', icon: 'mui' },
+  { name: 'Ant Design', color: '#0170FE', orbit: 'outer', size: 'small', icon: 'antdesign' },
+  { name: 'Mongoose', color: '#880000', orbit: 'outer', size: 'small', icon: 'mongoose' },
+  { name: 'NextAuth.js', color: '#000000', orbit: 'outer', size: 'small', icon: 'nextdotjs' },
+  { name: 'Appwrite', color: '#FD366E', orbit: 'outer', size: 'small', icon: 'appwrite' },
+  { name: 'Netlify', color: '#00C7B7', orbit: 'outer', size: 'small', icon: 'netlify' },
+];
+
+const orbitConfig = {
+  inner: { radius: 3, speed: 0.3 },
+  middle: { radius: 4.5, speed: 0.2 },
+  outer: { radius: 6, speed: 0.15 },
 };
 
-const skillLayers = {
-  Frontend: {
-    skills: [
-      { name: "React", size: 1.2 },
-      { name: "Next.js", size: 1.2 },
-      { name: "TypeScript", size: 1.1 },
-      { name: "Tailwind", size: 1.0 },
-      { name: "JavaScript", size: 1.1 },
-      { name: "Redux", size: 0.9 },
-      { name: "Shadcn UI", size: 0.8 },
-      { name: "MUI", size: 0.8 },
-    ],
-    color: "#06b6d4",
-    radius: 3,
-  },
-  Backend: {
-    skills: [
-      { name: "Node.js", size: 1.1 },
-      { name: "Express", size: 0.9 },
-      { name: "PostgreSQL", size: 1.0 },
-      { name: "MongoDB", size: 1.0 },
-      { name: "Prisma", size: 0.9 },
-      { name: "Python", size: 1.0 },
-    ],
-    color: "#ec4899",
-    radius: 4.5,
-  },
-  Tools: {
-    skills: [
-      { name: "Git", size: 1.0 },
-      { name: "Docker", size: 1.0 },
-      { name: "Vercel", size: 0.9 },
-      { name: "Firebase", size: 0.9 },
-      { name: "NextAuth", size: 0.8 },
-      { name: "Stripe", size: 0.8 },
-      { name: "Figma", size: 0.8 },
-    ],
-    color: "#8b5cf6",
-    radius: 6,
-  },
+const sizeConfig = {
+  large: { base: 70, hover: 90 },
+  medium: { base: 55, hover: 70 },
+  small: { base: 45, hover: 60 },
 };
 
 // Reactor Core
@@ -98,37 +81,32 @@ const ReactorCore = ({ onHover }: { onHover: (skill: string | null) => void }) =
   );
 };
 
-// Orbiting Skill Icons
-const OrbitingSkill = ({
-  skill,
+// Orbiting Tech Logo
+const OrbitingLogo = ({
+  tech,
   angle,
-  radius,
-  color,
-  size,
+  index,
   onHover,
 }: {
-  skill: string;
+  tech: typeof techStack[0];
   angle: number;
-  radius: number;
-  color: string;
-  size: number;
+  index: number;
   onHover: (skill: string | null) => void;
 }) => {
   const groupRef = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
-  const IconComponent = techIcons[skill] || Code2;
+  
+  const { radius, speed } = orbitConfig[tech.orbit as keyof typeof orbitConfig];
+  const { base, hover } = sizeConfig[tech.size as keyof typeof sizeConfig];
 
   useFrame(({ clock }) => {
     if (groupRef.current) {
-      const t = clock.getElapsedTime() * 0.3;
+      const t = clock.getElapsedTime() * speed;
+      // Orbital motion
       groupRef.current.position.x = Math.cos(t + angle) * radius;
       groupRef.current.position.z = Math.sin(t + angle) * radius;
-      // Bobbing animation
-      groupRef.current.position.y = Math.sin(t * 2 + angle) * 0.4;
-      // Tilt and rotate
-      groupRef.current.rotation.y = t + angle;
-      groupRef.current.rotation.x = Math.sin(t) * 0.2;
-      groupRef.current.rotation.z = Math.cos(t * 0.5) * 0.1;
+      // Floating/bobbing animation
+      groupRef.current.position.y = Math.sin(t * 2 + angle + index) * 0.3;
     }
   });
 
@@ -137,7 +115,7 @@ const OrbitingSkill = ({
       ref={groupRef}
       onPointerOver={() => {
         setHovered(true);
-        onHover(skill);
+        onHover(tech.name);
       }}
       onPointerOut={() => {
         setHovered(false);
@@ -146,58 +124,91 @@ const OrbitingSkill = ({
     >
       <Html center distanceFactor={8}>
         <div
-          className="relative flex items-center justify-center transition-all duration-300"
+          className="relative flex items-center justify-center transition-all duration-500"
           style={{
-            width: hovered ? `${size * 70}px` : `${size * 50}px`,
-            height: hovered ? `${size * 70}px` : `${size * 50}px`,
+            width: hovered ? `${hover}px` : `${base}px`,
+            height: hovered ? `${hover}px` : `${base}px`,
+            perspective: '1200px',
           }}
         >
-          {/* Glow background */}
+          {/* Multi-layered glow effect */}
           <div
-            className="absolute inset-0 rounded-xl blur-xl transition-all duration-300"
+            className="absolute inset-0 rounded-2xl blur-2xl transition-all duration-500"
             style={{
-              backgroundColor: color,
-              opacity: hovered ? 0.8 : 0.4,
+              backgroundColor: tech.color,
+              opacity: hovered ? 0.9 : 0.5,
+              transform: hovered ? 'scale(1.5)' : 'scale(1.1)',
+              boxShadow: `0 0 ${hovered ? '60px' : '30px'} ${tech.color}, 0 0 ${hovered ? '90px' : '45px'} ${tech.color}`,
+            }}
+          />
+          <div
+            className="absolute inset-0 rounded-2xl blur-xl transition-all duration-500"
+            style={{
+              backgroundColor: tech.color,
+              opacity: hovered ? 0.7 : 0.3,
               transform: hovered ? 'scale(1.3)' : 'scale(1)',
             }}
           />
-          {/* Icon container */}
+          
+          {/* 3D Logo container with depth */}
           <div
-            className="relative flex items-center justify-center rounded-xl transition-all duration-300 backdrop-blur-sm"
+            className="relative flex items-center justify-center rounded-2xl transition-all duration-500 backdrop-blur-md"
             style={{
-              backgroundColor: `${color}20`,
-              border: `2px solid ${color}`,
+              backgroundColor: tech.color === '#000000' ? '#ffffff15' : `${tech.color}20`,
+              border: `2px solid ${tech.color}`,
               width: '100%',
               height: '100%',
-              transform: hovered ? 'scale(1.1)' : 'scale(1)',
+              transform: hovered 
+                ? 'perspective(1200px) rotateY(15deg) rotateX(10deg) translateZ(30px) scale(1.15)' 
+                : 'perspective(1200px) rotateY(5deg) rotateX(5deg) translateZ(0px) scale(1)',
+              boxShadow: hovered 
+                ? `0 10px 40px ${tech.color}80, inset 0 0 20px ${tech.color}30`
+                : `0 5px 20px ${tech.color}60, inset 0 0 10px ${tech.color}20`,
+              background: `linear-gradient(135deg, ${tech.color}25, ${tech.color}10)`,
             }}
           >
-            <IconComponent
-              size={size * (hovered ? 32 : 24)}
-              style={{ color }}
-              strokeWidth={2.5}
+            {/* Shine/glass effect overlay */}
+            <div
+              className="absolute inset-0 rounded-2xl opacity-30 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 50%, rgba(255,255,255,0.1) 100%)',
+                opacity: hovered ? 0.6 : 0.3,
+              }}
+            />
+            
+            {/* Logo from Simple Icons CDN */}
+            <img
+              src={`https://cdn.simpleicons.org/${tech.icon}/${tech.color.replace('#', '')}`}
+              alt={tech.name}
+              className="relative z-10 transition-all duration-500"
+              style={{
+                width: hovered ? '60%' : '55%',
+                height: hovered ? '60%' : '55%',
+                filter: `drop-shadow(0 0 ${hovered ? '15px' : '8px'} ${tech.color})`,
+                animation: 'float 3s ease-in-out infinite, rotate-slow 20s linear infinite',
+              }}
             />
           </div>
+          
+          {/* Tooltip */}
+          {hovered && (
+            <div
+              className="absolute -bottom-12 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap pointer-events-none"
+              style={{
+                backgroundColor: `${tech.color}`,
+                color: tech.color === '#F7DF1E' || tech.color === '#FFCA28' ? '#000' : '#fff',
+                boxShadow: `0 0 20px ${tech.color}`,
+              }}
+            >
+              {tech.name}
+            </div>
+          )}
         </div>
       </Html>
     </group>
   );
 };
 
-// Energy Streams
-const EnergyStream = ({ start, end, color }: { start: THREE.Vector3; end: THREE.Vector3; color: string }) => {
-  const points = [start, end];
-
-  return (
-    <Line
-      points={[start.toArray(), end.toArray()]}
-      color={color}
-      lineWidth={1}
-      transparent
-      opacity={0.4}
-    />
-  );
-};
 
 // 3D Scene Component
 const ReactorScene = ({ hoveredSkill, setHoveredSkill }: { hoveredSkill: string | null; setHoveredSkill: (skill: string | null) => void }) => {
@@ -211,34 +222,22 @@ const ReactorScene = ({ hoveredSkill, setHoveredSkill }: { hoveredSkill: string 
       {/* Reactor Core */}
       <ReactorCore onHover={setHoveredSkill} />
 
-      {/* Skill Layers */}
-      {Object.entries(skillLayers).map(([layer, { skills, color, radius }]) =>
-        skills.map((skillObj, index) => {
-          const angle = (index / skills.length) * Math.PI * 2;
-          return (
-            <group key={`${layer}-${skillObj.name}`}>
-              <OrbitingSkill
-                skill={skillObj.name}
-                angle={angle}
-                radius={radius}
-                color={color}
-                size={skillObj.size}
-                onHover={setHoveredSkill}
-              />
-              {/* Energy Stream from Core to Skill */}
-              <EnergyStream
-                start={new THREE.Vector3(0, 0, 0)}
-                end={new THREE.Vector3(
-                  Math.cos(angle) * radius,
-                  0,
-                  Math.sin(angle) * radius
-                )}
-                color={color}
-              />
-            </group>
-          );
-        })
-      )}
+      {/* Technology Logos in Orbits */}
+      {techStack.map((tech, index) => {
+        const orbitTechs = techStack.filter(t => t.orbit === tech.orbit);
+        const orbitIndex = orbitTechs.findIndex(t => t.name === tech.name);
+        const angle = (orbitIndex / orbitTechs.length) * Math.PI * 2;
+        
+        return (
+          <OrbitingLogo
+            key={tech.name}
+            tech={tech}
+            angle={angle}
+            index={index}
+            onHover={setHoveredSkill}
+          />
+        );
+      })}
 
       {/* Volumetric Light Particles */}
       <VolumetricParticles />
@@ -349,7 +348,7 @@ const DeveloperReactor = () => {
           )}
         </motion.div>
 
-        {/* Layer Legend */}
+        {/* Orbit Legend */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -357,18 +356,36 @@ const DeveloperReactor = () => {
           viewport={{ once: true }}
           className="flex flex-wrap justify-center gap-8 mt-12"
         >
-          {Object.entries(skillLayers).map(([layer, { color }]) => (
-            <div key={layer} className="flex items-center gap-3 glass-card px-4 py-2 rounded-full">
-              <div
-                className="w-3 h-3 rounded-full animate-glow-pulse"
-                style={{
-                  backgroundColor: color,
-                  boxShadow: `0 0 15px ${color}`,
-                }}
-              />
-              <span className="text-sm font-medium text-foreground">{layer} Layer</span>
-            </div>
-          ))}
+          <div className="flex items-center gap-3 glass-card px-4 py-2 rounded-full">
+            <div
+              className="w-3 h-3 rounded-full animate-glow-pulse"
+              style={{
+                backgroundColor: '#61DAFB',
+                boxShadow: '0 0 15px #61DAFB',
+              }}
+            />
+            <span className="text-sm font-medium text-foreground">Inner Orbit - Core Stack</span>
+          </div>
+          <div className="flex items-center gap-3 glass-card px-4 py-2 rounded-full">
+            <div
+              className="w-3 h-3 rounded-full animate-glow-pulse"
+              style={{
+                backgroundColor: '#06B6D4',
+                boxShadow: '0 0 15px #06B6D4',
+              }}
+            />
+            <span className="text-sm font-medium text-foreground">Middle Orbit - Framework & Tools</span>
+          </div>
+          <div className="flex items-center gap-3 glass-card px-4 py-2 rounded-full">
+            <div
+              className="w-3 h-3 rounded-full animate-glow-pulse"
+              style={{
+                backgroundColor: '#8b5cf6',
+                boxShadow: '0 0 15px #8b5cf6',
+              }}
+            />
+            <span className="text-sm font-medium text-foreground">Outer Orbit - Languages & Services</span>
+          </div>
         </motion.div>
       </div>
     </section>
